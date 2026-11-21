@@ -151,7 +151,7 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    private fun setImmersive(on: Boolean) {
+    private fun applyImmersive(on: Boolean) {
         if (Build.VERSION.SDK_INT >= 30) {
             val c = window.insetsController ?: return
             if (on) {
@@ -235,7 +235,7 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
-        fun setFullscreen(on: Boolean) { runOnUiThread { setImmersive(on) } }
+        fun setFullscreen(on: Boolean) { runOnUiThread { applyImmersive(on) } }
 
         @JavascriptInterface
         fun showKeyboard() {
