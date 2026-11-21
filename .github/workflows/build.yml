@@ -80,7 +80,7 @@ jobs:
           KS: ${{ secrets.UZ_KEYSTORE_B64 }}
         run: |
           if [ -n "$KS" ]; then
-            echo "$KS" | base64 -d > "$RUNNER_TEMP/uzdesk.p12"
+            printf '%s' "$KS" | tr -d '\r\n ' | base64 -d > "$RUNNER_TEMP/uzdesk.p12"
             echo "UZ_KEYSTORE_FILE=$RUNNER_TEMP/uzdesk.p12" >> "$GITHUB_ENV"
           else
             echo "No signing key secret - using debug signing"
