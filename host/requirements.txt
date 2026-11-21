@@ -1,0 +1,9 @@
+aiohttp>=3.9
+av>=12.0
+numpy>=1.26
+mss>=9.0
+dxcam>=0.0.5
+simplejpeg>=1.7
+pywebview>=5.1
+pystray>=0.19
+Pillow>=10.0

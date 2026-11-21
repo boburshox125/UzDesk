@@ -1,0 +1,128 @@
+name: Build UzDesk
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  UZ_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '1.0.0-dev' }}
+
+jobs:
+  windows:
+    name: Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: host/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r host/requirements.txt pyinstaller
+
+      - name: Smoke test
+        working-directory: host
+        run: python -c "import uzdesk.server, uzdesk.app; from uzdesk import encoder; e = encoder.available_encoders(); print('encoders', e); assert 'libx264' in e"
+
+      - name: Download cloudflared (internet tunnel)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force bin | Out-Null
+          Invoke-WebRequest "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile bin/cloudflared.exe
+
+      - name: Build UzDesk.exe
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed --name UzDesk `
+            --icon host/assets/uzdesk.ico `
+            --paths host `
+            --add-data "host/ui;ui" `
+            --add-data "client;client" `
+            --add-data "host/assets;assets" `
+            --add-binary "bin/cloudflared.exe;bin" `
+            --hidden-import dxcam --hidden-import simplejpeg --hidden-import pystray._win32 `
+            --collect-submodules comtypes `
+            host/uzdesk_main.py
+          Get-Item dist/UzDesk.exe | Format-List Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UzDesk-windows
+          path: dist/UzDesk.exe
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Signing key
+        env:
+          KS: ${{ secrets.UZ_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/uzdesk.p12"
+            echo "UZ_KEYSTORE_FILE=$RUNNER_TEMP/uzdesk.p12" >> "$GITHUB_ENV"
+          else
+            echo "No signing key secret - using debug signing"
+          fi
+
+      - name: Build APK
+        working-directory: android
+        env:
+          UZ_KEYSTORE_PASSWORD: ${{ secrets.UZ_KEYSTORE_PASSWORD }}
+          UZ_VERSION_CODE: ${{ github.run_number }}
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk UzDesk.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UzDesk-android
+          path: UzDesk.apk
+
+  release:
+    name: GitHub Release
+    needs: [windows, android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: UzDesk ${{ github.ref_name }}
+          files: |
+            out/UzDesk.exe
+            out/UzDesk.apk
+          body: |
+            ## UzDesk ${{ github.ref_name }}
+
+            **Kompyuter uchun:** `UzDesk.exe` — boshqariladigan kompyuterda ishga tushiring (o'rnatish shart emas).
+            **Telefon uchun:** `UzDesk.apk` — Android telefonga o'rnating.
+
+            Kompyuter dasturida ko'rsatilgan **ID** va **PIN** ni telefondagi ilovaga kiriting.
+            Batafsil: README.

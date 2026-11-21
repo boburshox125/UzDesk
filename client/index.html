@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>UzDesk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- ===================== HOME ===================== -->
+<section id="home" class="screen active">
+  <div class="bg-orbs"><i></i><i></i><i></i></div>
+  <div class="home-wrap">
+    <header class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M9 20h6M12 16v4"/></svg></div>
+      <div>
+        <h1>UzDesk</h1>
+        <p>Kompyuterni istalgan joydan boshqaring</p>
+      </div>
+    </header>
+
+    <div class="card connect-card">
+      <h2>Ulanish</h2>
+      <label class="field">
+        <span>Kompyuter ID, IP manzil yoki havola</span>
+        <input id="inTarget" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="masalan: 123 456 7890 yoki 192.168.1.5">
+      </label>
+      <label class="field">
+        <span>PIN kod yoki parol</span>
+        <div class="pin-wrap">
+          <input id="inPin" type="password" autocomplete="off" placeholder="••••••">
+          <button class="icon-btn ghost" id="btnShowPin" type="button" aria-label="Ko'rsatish" data-icon="eye"></button>
+        </div>
+      </label>
+      <label class="check"><input id="inRemember" type="checkbox" checked><span>Saqlab qo'yish</span></label>
+      <button id="btnConnect" class="btn primary big"><span data-icon="play"></span><span>Ulanish</span></button>
+      <p id="homeError" class="err" hidden></p>
+    </div>
+
+    <div class="card" id="discCard" hidden>
+      <h2><span class="pulse"></span>Tarmoqdagi kompyuterlar</h2>
+      <div id="discList" class="host-list"></div>
+    </div>
+
+    <div class="card" id="savedCard">
+      <h2>Saqlangan kompyuterlar</h2>
+      <div id="savedList" class="host-list"></div>
+      <p id="savedEmpty" class="muted">Hali saqlangan kompyuter yo'q. Kompyuterdagi UzDesk dasturida ko'rsatilgan ID va PIN ni kiriting.</p>
+    </div>
+
+    <div class="tips">
+      <div><b>1</b>Kompyuterga UzDesk.exe ni o'rnating va ishga tushiring.</div>
+      <div><b>2</b>Bir Wi‑Fi tarmoqda bo'lsangiz — kompyuter yuqorida avtomatik chiqadi.</div>
+      <div><b>3</b>Internet orqali — dasturda “Internet orqali ulanish”ni yoqing va ID bilan ulaning.</div>
+    </div>
+    <p class="ver">UzDesk <span id="ver">1.0.0</span></p>
+  </div>
+</section>
+
+<!-- ===================== VIEWER ===================== -->
+<section id="viewer" class="screen">
+  <div id="stage">
+    <canvas id="screen"></canvas>
+    <div id="cursor"><svg viewBox="0 0 24 24"><path d="M5 2.5v17.2l4.6-4.4 3 6.9 3-1.3-3-6.8h6.3z"/></svg></div>
+  </div>
+
+  <div id="stats" hidden></div>
+
+  <button id="fab" aria-label="Menyu"><span data-icon="menu"></span></button>
+
+  <!-- quick key bar -->
+  <div id="keybar" hidden>
+    <div class="keys" id="keysRow"></div>
+    <button class="kb-close" id="kbClose" data-icon="x"></button>
+  </div>
+  <textarea id="kbd" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+
+  <!-- side panel -->
+  <div id="scrim" hidden></div>
+  <aside id="panel" aria-hidden="true">
+    <div class="panel-head">
+      <div>
+        <div class="ph-title" id="phName">Kompyuter</div>
+        <div class="ph-sub" id="phSub">Ulangan</div>
+      </div>
+      <button class="icon-btn ghost" id="panelClose" data-icon="x"></button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="tControl">Boshqaruv</button>
+      <button class="tab" data-tab="tVideo">Video</button>
+      <button class="tab" data-tab="tTools">Asboblar</button>
+    </div>
+
+    <div class="tab-body active" id="tControl">
+      <div class="grid-actions">
+        <button class="act" data-act="keyboard"><span data-icon="keyboard"></span>Klaviatura</button>
+        <button class="act" data-act="keybar"><span data-icon="command"></span>Maxsus tugmalar</button>
+        <button class="act" data-act="fullscreen"><span data-icon="maximize"></span>To'liq ekran</button>
+        <button class="act" data-act="stats"><span data-icon="activity"></span>Statistika</button>
+      </div>
+      <div class="group">
+        <div class="g-title">Sensor rejimi</div>
+        <div class="seg" id="segMode">
+          <button data-v="touchpad">Touchpad</button>
+          <button data-v="direct">Sensorli ekran</button>
+        </div>
+        <p class="hint" id="modeHint"></p>
+      </div>
+      <div class="group">
+        <div class="g-title">Ko'rinish</div>
+        <div class="seg" id="segFit">
+          <button data-v="fit">Moslash</button>
+          <button data-v="fill">To'ldirish</button>
+          <button data-v="real">1:1</button>
+        </div>
+      </div>
+      <div class="group">
+        <div class="g-title">Sezgirlik <span class="val" id="sensVal"></span></div>
+        <input type="range" id="sens" min="0.5" max="4" step="0.1">
+      </div>
+      <label class="switch-row"><span>Faqat ko'rish (boshqarmaslik)</span><input type="checkbox" id="viewOnly"><i></i></label>
+      <label class="switch-row"><span>Kursorni ko'rsatish</span><input type="checkbox" id="showCursor" checked><i></i></label>
+      <div class="group">
+        <div class="g-title">Tezkor buyruqlar</div>
+        <div class="chips" id="quickKeys"></div>
+      </div>
+      <button class="btn danger wide" data-act="disconnect"><span data-icon="power"></span>Uzish</button>
+    </div>
+
+    <div class="tab-body" id="tVideo">
+      <div class="group">
+        <div class="g-title">Sifat profili</div>
+        <div class="presets" id="presets">
+          <button data-p="eco"><b>Tejamkor</b><small>Sekin internet</small></button>
+          <button data-p="balanced"><b>Muvozanat</b><small>Tavsiya etiladi</small></button>
+          <button data-p="high"><b>Yuqori</b><small>Wi‑Fi / LAN</small></button>
+          <button data-p="ultra"><b>Ultra</b><small>60 FPS, maksimal</small></button>
+        </div>
+      </div>
+      <div class="group">
+        <div class="g-title">Kodek</div>
+        <div class="seg" id="segCodec">
+          <button data-v="h264">H.264</button>
+          <button data-v="jpeg">JPEG</button>
+        </div>
+      </div>
+      <div class="group" id="grpEncoder">
+        <div class="g-title">Kodlovchi (kompyuterda)</div>
+        <select id="selEncoder"></select>
+      </div>
+      <div class="group" id="grpSpeed">
+        <div class="g-title">Kodlash rejimi</div>
+        <div class="seg" id="segSpeed">
+          <button data-v="speed">Tezlik</button>
+          <button data-v="balanced">Muvozanat</button>
+          <button data-v="quality">Sifat</button>
+        </div>
+      </div>
+      <div class="group">
+        <div class="g-title">Kadr tezligi <span class="val" id="fpsVal"></span></div>
+        <input type="range" id="fps" min="0" max="7" step="1">
+      </div>
+      <div class="group" id="grpBitrate">
+        <div class="g-title">Bitreyt <span class="val" id="brVal"></span></div>
+        <input type="range" id="bitrate" min="500" max="40000" step="500">
+      </div>
+      <div class="group" id="grpJpeg">
+        <div class="g-title">JPEG sifati <span class="val" id="jqVal"></span></div>
+        <input type="range" id="jpegq" min="20" max="95" step="5">
+      </div>
+      <div class="group">
+        <div class="g-title">Tasvir o'lchami <span class="val" id="scVal"></span></div>
+        <input type="range" id="scale" min="25" max="100" step="5">
+      </div>
+      <label class="switch-row"><span>Moslashuvchan bitreyt (tarmoqqa qarab)</span><input type="checkbox" id="autoQ"><i></i></label>
+      <div class="group" id="grpMonitor">
+        <div class="g-title">Ekran (monitor)</div>
+        <div class="seg" id="segMonitor"></div>
+      </div>
+      <p class="hint" id="videoInfo"></p>
+    </div>
+
+    <div class="tab-body" id="tTools">
+      <div class="group">
+        <div class="g-title">Almashish buferi</div>
+        <textarea id="clipText" rows="3" placeholder="Kompyuterga yuboriladigan matn..."></textarea>
+        <div class="row2">
+          <button class="btn" data-act="clipsend"><span data-icon="upload"></span>Yuborish</button>
+          <button class="btn" data-act="clipget"><span data-icon="download"></span>Kompyuterdan olish</button>
+        </div>
+        <button class="btn wide" data-act="typeclip"><span data-icon="type"></span>Matnni yozdirish (klaviatura orqali)</button>
+      </div>
+      <div class="group" id="grpFiles">
+        <div class="g-title">Fayl yuborish</div>
+        <button class="btn wide" data-act="file"><span data-icon="file"></span>Fayl tanlash va yuborish</button>
+        <input type="file" id="fileIn" multiple hidden>
+        <div id="upProg" class="progress" hidden><i></i></div>
+        <p class="hint">Fayllar kompyuterdagi Yuklanmalar\UzDesk papkasiga saqlanadi.</p>
+      </div>
+      <div class="group">
+        <div class="g-title">Tizim</div>
+        <div class="chips">
+          <button class="chip" data-act="lock"><span data-icon="lock"></span>Qulflash</button>
+          <button class="chip" data-act="taskmgr"><span data-icon="activity"></span>Vazifalar menejeri</button>
+        </div>
+      </div>
+      <div class="group" id="grpPower">
+        <div class="g-title">Quvvat</div>
+        <div class="chips">
+          <button class="chip warn" data-act="restart"><span data-icon="refresh"></span>Qayta yuklash</button>
+          <button class="chip warn" data-act="shutdown"><span data-icon="power"></span>O'chirish</button>
+          <button class="chip" data-act="sleep"><span data-icon="moon"></span>Uyqu</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="overlay" hidden>
+    <div class="ov-box">
+      <div class="spinner"></div>
+      <div class="ov-title" id="ovTitle">Ulanmoqda...</div>
+      <div class="ov-sub" id="ovSub"></div>
+      <button class="btn" id="ovCancel">Bekor qilish</button>
+    </div>
+  </div>
+</section>
+
+<div id="toasts"></div>
+<div id="modal" hidden>
+  <div class="modal-box">
+    <div class="m-title" id="mTitle"></div>
+    <div class="m-text" id="mText"></div>
+    <div class="m-btns"><button class="btn" id="mNo">Bekor</button><button class="btn primary" id="mYes">Ha</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

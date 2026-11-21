@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UzDesk</title>
+<link rel="stylesheet" href="ui.css">
+</head>
+<body>
+<div class="app">
+  <nav class="side">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M9 20h6M12 16v4"/></svg></div>
+      <div><b>UzDesk</b><small id="ver"></small></div>
+    </div>
+    <button class="nav active" data-page="pHome"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Bu kompyuter</button>
+    <button class="nav" data-page="pConnect"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Boshqa kompyuterga ulanish</button>
+    <button class="nav" data-page="pSettings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Sozlamalar</button>
+    <div class="side-foot">
+      <div class="status"><span class="dot" id="stDot"></span><span id="stText">Ishga tushmoqda...</span></div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section class="page active" id="pHome">
+      <div class="hero card">
+        <div class="hero-l">
+          <div class="lbl">Ushbu kompyuter ID raqami</div>
+          <div class="big-id" id="devId">— — —</div>
+          <div class="lbl" style="margin-top:18px">PIN kod</div>
+          <div class="pin-row">
+            <div class="big-pin" id="pin">••••••</div>
+            <button class="ib" id="pinShow" title="Ko'rsatish"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="ib" id="pinCopy" title="Nusxa"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="ib" id="pinNew" title="Yangi PIN"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg></button>
+          </div>
+          <p class="hint">Telefondagi UzDesk ilovasida shu ID va PIN ni kiriting. Bir Wi‑Fi tarmoqda bo'lsangiz kompyuter ro'yxatda o'zi chiqadi.</p>
+        </div>
+        <div class="hero-r">
+          <div class="mini-card">
+            <div class="mc-head"><span>Mahalliy tarmoq</span><span class="tag ok">LAN</span></div>
+            <div id="addrList" class="addr-list"></div>
+          </div>
+          <div class="mini-card">
+            <div class="mc-head"><span>Internet orqali ulanish</span>
+              <label class="sw"><input type="checkbox" id="tunnelSw"><i></i></label></div>
+            <div id="tunnelInfo" class="tun-info">O'chiq. Yoqsangiz, boshqa shahardan ham ID orqali ulanish mumkin.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card grow">
+          <h3>Ulangan qurilmalar <span class="count" id="cliCount">0</span></h3>
+          <div id="clients" class="list"></div>
+          <p class="empty" id="cliEmpty">Hozircha hech kim ulanmagan.</p>
+        </div>
+        <div class="card grow">
+          <h3>Voqealar</h3>
+          <div id="events" class="events"></div>
+        </div>
+      </div>
+      <div class="warn-card card" id="adminWarn" hidden>
+        <div><b>Administrator huquqi yo'q.</b> Ba'zi oynalarni (masalan, administrator sifatida ochilgan dasturlar) boshqarib bo'lmasligi mumkin.</div>
+        <button class="btn" id="btnElevate">Administrator sifatida qayta ochish</button>
+      </div>
+      <div class="warn-card card bad" id="errCard" hidden></div>
+    </section>
+
+    <!-- CONNECT -->
+    <section class="page" id="pConnect">
+      <div class="card">
+        <h3>Boshqa kompyuterga ulanish</h3>
+        <div class="form-row">
+          <label class="field"><span>Kompyuter ID, IP yoki havola</span><input id="cTarget" placeholder="123 456 7890 yoki 192.168.1.20"></label>
+          <label class="field" style="max-width:220px"><span>PIN / parol</span><input id="cPin" type="password" placeholder="••••••"></label>
+          <button class="btn primary" id="cGo">Ulanish</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="cRemember" checked> PIN ni eslab qolish</label>
+      </div>
+      <div class="card" id="cDiscCard" hidden>
+        <h3><span class="pulse"></span>Tarmoqdagi kompyuterlar</h3>
+        <div id="cDisc" class="list"></div>
+      </div>
+      <div class="card">
+        <h3>Saqlanganlar</h3>
+        <div id="cSaved" class="list"></div>
+        <p class="empty" id="cSavedEmpty">Hali saqlangan ulanish yo'q.</p>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" id="pSettings">
+      <div class="row">
+        <div class="card grow">
+          <h3>Qurilma</h3>
+          <label class="field"><span>Kompyuter nomi</span>
+            <div class="inline"><input id="sName"><button class="btn" id="sNameSave">Saqlash</button></div></label>
+          <label class="field"><span>Doimiy parol (ixtiyoriy, PIN o'rniga ham ishlaydi)</span>
+            <div class="inline"><input id="sPass" type="password" placeholder="kamida 4 belgi"><button class="btn" id="sPassSave">Saqlash</button></div></label>
+          <p class="hint" id="passState"></p>
+        </div>
+        <div class="card grow">
+          <h3>Xavfsizlik</h3>
+          <label class="srow"><span>Har bir yangi ulanishni tasdiqlash<small>Ulanishdan oldin bu yerda “Ruxsat berish” so'raladi</small></span><label class="sw"><input type="checkbox" data-set="require_approval"><i></i></label></label>
+          <label class="srow"><span>Fayl qabul qilish</span><label class="sw"><input type="checkbox" data-set="allow_files"><i></i></label></label>
+          <label class="srow"><span>Masofadan o'chirish / qayta yuklashga ruxsat</span><label class="sw"><input type="checkbox" data-set="allow_power"><i></i></label></label>
+          <button class="btn small" id="clearTrusted">Ishonchli qurilmalar ro'yxatini tozalash</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="card grow">
+          <h3>Ishlash</h3>
+          <label class="srow"><span>Windows bilan birga ishga tushirish</span><label class="sw"><input type="checkbox" data-set="autostart"><i></i></label></label>
+          <label class="srow"><span>Yopilganda fonda ishlash (tray)</span><label class="sw"><input type="checkbox" data-set="tray_on_close"><i></i></label></label>
+          <label class="srow"><span>Internet rejimini avtomatik yoqish</span><label class="sw"><input type="checkbox" data-set="tunnel_autostart"><i></i></label></label>
+          <label class="srow"><span>ID orqali topish xizmati<small>Manzilni ntfy.sh orqali e'lon qiladi, shunda ID bilan ulanish mumkin</small></span><label class="sw"><input type="checkbox" data-set="id_service"><i></i></label></label>
+          <label class="srow"><span>Mahalliy tarmoqda ko'rinish</span><label class="sw"><input type="checkbox" data-set="discovery"><i></i></label></label>
+          <label class="srow"><span>Almashish buferini sinxronlash</span><label class="sw"><input type="checkbox" data-set="clipboard_sync"><i></i></label></label>
+        </div>
+        <div class="card grow">
+          <h3>Ma'lumot</h3>
+          <div class="kv"><span>Port</span><b id="iPort"></b></div>
+          <div class="kv"><span>Video kodlovchilar</span><b id="iEnc"></b></div>
+          <div class="kv"><span>Administrator</span><b id="iAdmin"></b></div>
+          <div class="kv"><span>Qabul qilingan fayllar</span><b id="iDl" class="path"></b></div>
+          <div class="btns">
+            <button class="btn" id="openDl">Papkani ochish</button>
+            <button class="btn danger" id="quit">Dasturdan chiqish</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="approve" class="modal" hidden>
+  <div class="m-box">
+    <div class="m-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <h3>Ulanish so'rovi</h3>
+    <p id="apText"></p>
+    <div class="m-btns">
+      <button class="btn danger" data-dec="deny">Rad etish</button>
+      <button class="btn" data-dec="once">Bir marta</button>
+      <button class="btn primary" data-dec="always">Doimiy ruxsat</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="UzTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/uz_bg</item>
+        <item name="android:statusBarColor">@color/uz_bg</item>
+        <item name="android:navigationBarColor">@color/uz_bg</item>
+        <item name="android:colorAccent">@color/uz_accent</item>
+    </style>
+</resources>
